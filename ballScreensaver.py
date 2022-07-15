@@ -15,12 +15,12 @@ class RandomBall: #crea la clase de las bolitas y las elige aleatoriamente
 		self.ypos = randint(70, int(self.scrHight -70)) 
 		
 		#define la velocidad de la pelotita en x, aleatoria entre 6 y 12
-		self.dx = randint(6, 12) 
+		self.dx = randint(3, 15) 
 		#define la velocidad de la pelotita en y, aleatoria entre 6 y 12
-		self.dy = randint(6, 12) 
+		self.dy = randint(3, 15) 
 		
 		#define aleatoriamente el radio de la pelotita, entre 40 y 70
-		self.radius = randint(40, 70) 
+		self.radius = randint(20, 70) 
 		
 		#elige aleatoriamente el color
 		self.color = f"#{randint(0,255):0>2x}{randint(0,255):0>2x}{randint(0,255):0>2x}" 
@@ -39,7 +39,7 @@ class RandomBall: #crea la clase de las bolitas y las elige aleatoriamente
 		
 		if (self.xpos > (self.scrWidth - self.radius)) or (self.xpos <= self.radius):
 			#hace que la pelotita se devuelva horizontalmente si llegó al límite de la pantalla
-			self.dx = -self.dx 
+			self.dx = -self.dx  
 		if (self.ypos > (self.scrHight - self.radius)) or (self.ypos <= self.radius):
 			#hace que la pelotita se devuelva verticalmente si llegó al límite de la pantalla
 			self.dy = -self.dy 
@@ -53,10 +53,16 @@ class ScreenSaver:  #crea el programa salvapantallas
 		#obtiene ancho y alto de la pantalla
 		w, h = self.master.winfo_screenwidth(), self.master.winfo_screenheight() 
 		self.balls = [] #crea una lista de pelotitas para poder trabajar con varias
-		
+
 		self.master.overrideredirect(True)
 		self.master.geometry(f"{w}x{h}+0+0") #define el tamaño de la pantalla
-		self.master.attributes('-alpha', 0.3)
+		#define la transparencia de todo el programa, varía entre 0 y 1
+		self.master.attributes('-alpha', 0.75) 
+		
+		self.master['bg']='grey' #define el color del fondo. Sacar esto si se quiere fondo blanco.
+		self.master.attributes('-transparentcolor','grey') #hace que el fondo sea transparente
+		#el segundo atributo (arriba) debe ser del MISMO COLOR del que se definió el fondo. Sacar esto si se quiere fondo blanco.
+		
 		#esto hace que el salvapantallas se quite si se toca cualquier tecla
 		self.master.bind("<Any-KeyPress>", self.quit)
 		#esto hace que el salvapantallas se quite si se toca cualquier botón del mouse 
@@ -64,7 +70,9 @@ class ScreenSaver:  #crea el programa salvapantallas
 		#esto hace que el salvapantallas se quite si se mueve el mouse
 		self.master.bind("<Motion>", self.quit) 
 		
-		self.canvas = tk.Canvas(self.master, width=w, height=h)
+		#se definen las características del fondo. 
+		#Background DEBE SER del MISMO COLOR definido arriba. Sacar esto (cuarto parámetro) si se quiere fondo blanco.
+		self.canvas = tk.Canvas(self.master, width=w, height=h, background='grey')
 		self.canvas.pack()
 		
 		for i in range(numBalls): #crea todas las bolitas
@@ -78,8 +86,12 @@ class ScreenSaver:  #crea el programa salvapantallas
 	def runScreenSaver(self): #define el método que corre o ejecuta el salvapantallas
 		for ball in self.balls: #trabaja con todas las bolitas
 			ball.moveBall() #llama al método que mueve las bolitas
-		#luego de 20 minutos el salvapantallas se activa
-		self.master.after(20, self.runScreenSaver) 
+		try:
+			#luego de 20 minutos el salvapantallas se activa
+			self.master.after(20, self.runScreenSaver) 
+		except:
+			#el salvapantallas se activa con CTRL+A
+			self.master.bind("<Control-a>", self.runScreenSaver)
 		
 	def quit(self, event): #define el evento que hace que el salvapantallas se quite
 		self.master.destroy()
@@ -90,8 +102,8 @@ if __name__=="__main__":
 	#pasa el tiempo necesario para que el programa empiece a ejecutarse
 	root = tk.Tk()
 	#llama a la clase ScreenSaver y le manda por parámetros la raíz (master)
-	#y el número de bolitas con que va a trabajar
-	ScreenSaver(root, 8) 
+	#y el número de bolitas con que va a trabajar, elegido aleatoriamente
+	ScreenSaver(root, randint(1,20))
 	#finaliza la ejecución y cierra la ventana cuando se cumplieron las condiciones
 	#para que el salvapantallas se quite
 	root.mainloop() 
